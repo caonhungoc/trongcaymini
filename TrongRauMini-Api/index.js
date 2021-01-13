@@ -25,5 +25,5 @@ app.use("/user", userRoute);
 app.use("/device", deviceRoute);
 
 app.listen(port, host, () => {
-    console.log(`Example is running at port ${port}`);
+    console.log(`Server is listenning at port ${port}`);
 })
