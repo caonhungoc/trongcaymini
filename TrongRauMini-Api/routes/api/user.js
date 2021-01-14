@@ -1,10 +1,12 @@
 const express = require('express');
 const user_router = express.Router();
-const user = require('../../models/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const config = require('config');
+
+const User = require('../../models/user');
+const Device = require('../../models/device');
 
 const secretKey = config.get('secretKey');
 
@@ -22,7 +24,7 @@ user_router.get('/search', (req, res) => {
 // access: PUBLIC
 user_router.post('/login', (req, res) => {
     const {email, password} = req.body;
-    user.findOne({email: email})
+    User.findOne({email: email})
     .then(user => {
         if(!user) return res.status(404).jsonp({email: "Email not exist!"});
 
@@ -37,6 +39,7 @@ user_router.post('/login', (req, res) => {
                 }
                 jwt.sign(payload, secretKey, {expiresIn: '24h' }, (err, token) => {
                     res.status(200).jsonp({
+                        id: user._id,
                         success: true,
                         token: `Bearer ${token}`
                     })
@@ -53,7 +56,7 @@ user_router.post('/login', (req, res) => {
 user_router.post('/register', (req, res) => {
     const {name, email, userType, password, phoneNumber} = req.body;
     const errors = {};
-    user.find({$or: [{email}]})
+    User.find({$or: [{email}]})
     .then(users => {
         if(users.length > 0) {
             for(let i = 0; i < users.length; i++) {
@@ -62,7 +65,7 @@ user_router.post('/register', (req, res) => {
             return res.status(400).jsonp(errors);
         }
         else {
-            const newUser = new user({name, email, userType, password, phoneNumber});
+            const newUser = new User({name, email, userType, password, phoneNumber});
 
             // hash password with salt
             bcrypt.genSalt(10, (err, salt) => {
@@ -90,6 +93,54 @@ user_router.get(
     passport.authenticate('jwt', {session: false}), 
     (req, res) => {
         res.status(200).jsonp(req.user);
+    }
+);
+
+// api/user + /create-device ==> /api/user/create-device
+// route: /api/user/create-device (POST)
+// description:  create device for user
+// access: PRIVATE
+user_router.post(
+    '/create-device', 
+    passport.authenticate('jwt', {session: false}), 
+    async (req, res) => {
+
+        let allowCreate = false;
+
+        try {
+            // check type of user
+            const foundUser = await User.findById(req.user.id);
+
+            // check number of device this user have
+            if(foundUser.userType === 2 && foundUser.numberOfDevice < foundUser.userType) { // maximum of standard user is 2 device
+                allowCreate = true;
+            } 
+            else if(foundUser === 'gold') { // gold user have unlimitted device
+                allowCreate = true;
+            }
+
+            if(allowCreate) {
+                const newDevice = new Device({
+                    deviceName: req.body.deviceName,
+                    userId: req.user.id
+                })
+                // add device
+                await newDevice.save();
+                // add new device to user model
+                foundUser.device.push(newDevice._id);
+                foundUser.numberOfDevice += 1;
+
+                await foundUser.save();
+                return res.status(200).jsonp({messsage : "Create successfully."});
+            }
+
+            res.status(200).jsonp({message: "Need to upgrade your role to create more device!"});
+        }
+        catch(e) {
+            console.log(e);
+            res.status(401).jsonp({ message : "Error happen" });
+        }
+        
     }
 );
 

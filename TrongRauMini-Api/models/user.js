@@ -26,9 +26,14 @@ const userSchema = new mongoose.Schema({
         default: []
     },
     userType: {
-        type: String,
-        default: 'standard'
-    }
+        type: Number,
+        default: 2
+    },
+    numberOfDevice: {
+        type: Number,
+        default: 0
+    },
+
 })
 
 const User = mongoose.model('User', userSchema);
