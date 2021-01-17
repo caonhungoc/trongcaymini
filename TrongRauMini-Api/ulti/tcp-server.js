@@ -43,6 +43,11 @@ server.on('connection', socket => {
                             delete sockets[countSocket[0].id];
                             console.log('close old connection!');
                         }
+                        else {
+                            countSocket[1].destroy();
+                            delete sockets[countSocket[1].id];
+                            console.log('close old connection!');
+                        }
                     }
                 }
             })
