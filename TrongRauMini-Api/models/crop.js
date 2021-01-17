@@ -11,12 +11,13 @@ const cropSchema = new mongoose.Schema({
     endDate: {
         type: Date,
     },
-    typeOfPlant: {
+    nameOfPlant: {
         type: String
     },
     diary: {
         type: [{
-            type: String
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Diary"
         }],
         default: []
     },
@@ -24,9 +25,17 @@ const cropSchema = new mongoose.Schema({
         type: [
             {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: "Crop"
+                ref: "Log"
             }
         ],
         default: []
+    },
+    deviceId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Device"
     }
 })
+
+const Crop = new mongoose.model("Crop", cropSchema);
+
+module.exports = Crop;

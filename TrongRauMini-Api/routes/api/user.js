@@ -144,4 +144,26 @@ user_router.post(
     }
 );
 
+
+// api/user + /get-device ==> /api/user/get-device
+// route: /api/user/get-device (GET)
+// description:  get all device this user have user
+// access: PRIVATE
+user_router.get(
+    '/get-device', 
+    passport.authenticate('jwt', {session: false}), 
+    async (req, res) => {
+        try {
+            const foundDevice = await Device.find({userId: req.user.id})
+            .populate("crop", "name startDate endDate typeOfPlant diary");
+            res.status(200).jsonp({foundDevice});
+        }
+        catch(e) {
+            console.log(e);
+            res.status(500).jsonp({ message : "Error happen" });
+        }
+        
+    }
+);
+
 module.exports = user_router;
