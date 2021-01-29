@@ -10,6 +10,7 @@ const cropSchema = new mongoose.Schema({
     },
     endDate: {
         type: Date,
+        default: ''
     },
     nameOfPlant: {
         type: String
