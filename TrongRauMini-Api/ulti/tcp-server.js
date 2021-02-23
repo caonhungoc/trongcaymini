@@ -23,13 +23,13 @@ server.on('connection', socket => {
     socket.id = counter++;
 
     console.log('client has connected')
-    socket.write('Please enter your name: ')
+    // socket.write('Please enter your name: ');
 
     socket.on('data', data => {
         if (!sockets[socket.id]) {
             socket.deviceId = data.toString().trim();
             socket.connectTime = new Date();
-            socket.write(`Welcome ${socket.deviceId}!\n`);
+            //socket.write(`Welcome ${socket.deviceId}!\n`);
             sockets[socket.id] = socket;
 
             let countSocket = [], i = 0;

@@ -18,23 +18,23 @@ const postControl = async (req, res) => {
         // check that is  this crop legal because it can be closed?
         const foundCrop = await Crop.findById(cropId);
 
-        if(!foundCrop) return res.status(400).jsonp({message: "Crop not exist!"});
-        if(foundCrop.endDate) return res.status(401).jsonp({message: "Crop have been closed!"});
+        if(!foundCrop) return res.status(400).send({message: "Crop not exist!"});
+        if(foundCrop.endDate) return res.status(401).send({message: "Crop have been closed!"});
 
         // find id of device have this crop
         let foundSocket;
         Object.entries(sockets).forEach(([key, sc]) => {
-            if (sc.deviceId === foundCrop._id.toString()) {
+            if (sc.deviceId === foundCrop.deviceId.toString()) {
                 foundSocket = sc;
                 // break;
             }
         })
 
         // find socket in sockets have this device
-        if(!foundSocket) return res.status(500).jsonp({message: "Can not do this action!"});
+        if(!foundSocket) return res.status(500).send({message: "Can not do this action!"});
 
         // send control signal to esp32
-        await foundSocket.write(`control:${relay},${state}`);
+        await foundSocket.write(`control:${relay},${state}}`);
 
         // get result feedback from esp32
 

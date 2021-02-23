@@ -4,19 +4,21 @@ const Crop = require('../models/crop');
 
 const postCreateCrop = async (req, res) => {
     const {deviceId, userId, name, nameOfPlant} = req.body;
+    console.log(deviceId, userId, name, nameOfPlant);
     try {
         // check that does this device belong to user?
         const foundUser = await User.findOne()
         .and([{ "device": { $elemMatch: { $eq: deviceId } } }, {_id: userId}]);
 
         if(!foundUser) {
-            return res.status(401).jsonp({ message: "Can not create crop with this deivce1!" });
+            return res.status(401).send({ message: "Can not create crop with this deivce1!" });
         }
         
         // check that is this device used for another crop? 
         let foundDevice = await Device.findOne({ _id:  deviceId })
+        console.log('abc ' + foundDevice.inProgressOfCrop);
         if(foundDevice.inProgressOfCrop) {
-            return res.status(402).jsonp({ message: "Can not create crop with this device!" });
+            return res.status(402).send({ message: "Can not create crop with this device!" });
         }
         // add crop
         const newCrop = new Crop({
@@ -32,14 +34,14 @@ const postCreateCrop = async (req, res) => {
         foundDevice.crop.push(newCrop.id);
 
         await foundDevice.save();
-        res.status(200).jsonp({ 
+        res.status(200).send({ 
             result: "OK",
             data: newCrop
         })
     }
     catch(e) {
         console.log(e);
-        res.status(401).jsonp({ message: "Error !" });
+        res.status(401).send({ message: "Error !" });
     }
 }
 
@@ -49,7 +51,7 @@ const postCloseCrop = async (req, res) => {
         // find crop by crop's id
         const foundCrop = await Crop.findOne({_id: cropId})
 
-        if(!foundCrop) return res.status(403).jsonp({ message: "Can not find this crop!" });
+        if(!foundCrop) return res.status(403).send({ message: "Can not find this crop!" });
         
         // check that is this device used for another crop? 
         let foundDevice = await Device.findOne({ _id:  foundCrop.deviceId })
@@ -59,13 +61,13 @@ const postCloseCrop = async (req, res) => {
         foundDevice.endDate = new Date();
 
         await foundDevice.save();
-        res.status(200).jsonp({ 
+        res.status(200).send({ 
             result: "Close Crop OK",
         })
     }
     catch(e) {
         console.log(e);
-        res.status(401).jsonp({ message: "Error !" });
+        res.status(401).send({ message: "Error !" });
     }
 }
 

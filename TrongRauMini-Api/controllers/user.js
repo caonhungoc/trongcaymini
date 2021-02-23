@@ -37,27 +37,30 @@ const postCreateDevice = async (req, res) => {
             foundUser.numberOfDevice += 1;
 
             await foundUser.save();
-            return res.status(200).jsonp({messsage : "Create successfully."});
+            return res.status(200).send({messsage : "Create successfully."});
         }
 
-        res.status(200).jsonp({message: "Need to upgrade your role to create more device!"});
+        res.status(200).send({message: "Need to upgrade your role to create more device!"});
     }
     catch(e) {
         console.log(e);
-        res.status(401).jsonp({ message : "Error happen" });
+        res.status(401).send({ message : "Error happen" });
     }
     
 }
 
 const postLogin = (req, res) => {
     const {email, password} = req.body;
+
+    if(!email || !password) return res.status(401).send({mes: "Something went wrong!"});
+
     User.findOne({email: email})
     .then(user => {
-        if(!user) return res.status(404).jsonp({email: "Email not exist!"});
+        if(!user) return res.status(401).send({email: "Email not exist!"});
 
         bcrypt.compare(password, user.password)
         .then(isMatch => {
-            if(!isMatch) res.status(400).jsonp({password: "Password not correct!"})
+            if(!isMatch) res.status(401).send({password: "Password not correct!"})
             else {
                 const payload = {
                     id: user._id,
@@ -65,7 +68,7 @@ const postLogin = (req, res) => {
                     name: user.name
                 }
                 jwt.sign(payload, secretKey, {expiresIn: '24h' }, (err, token) => {
-                    res.status(200).jsonp({
+                    res.status(200).send({
                         id: user._id,
                         success: true,
                         token: `Bearer ${token}`
@@ -85,7 +88,7 @@ const postRegister = (req, res) => {
             for(let i = 0; i < users.length; i++) {
                 if(users[i].email === email) errors.email = "Email already exist";
             }
-            return res.status(400).jsonp(errors);
+            return res.status(409).send(errors);
         }
         else {
             const newUser = new User({name, email, userType, password, phoneNumber});
@@ -111,11 +114,11 @@ const getDevice = async (req, res) => {
     try {
         const foundDevice = await Device.find({userId: req.user.id})
         .populate("crop", "name startDate endDate typeOfPlant diary");
-        res.status(200).jsonp({foundDevice});
+        res.status(200).send({foundDevice});
     }
     catch(e) {
         console.log(e);
-        res.status(500).jsonp({ message : "Error happen" });
+        res.status(500).send({ message : "Error happen" });
     }
     
 }

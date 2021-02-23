@@ -32,3 +32,6 @@ app.use("/control", passport.authenticate('jwt', {session: false}), controlRoute
 app.listen(port, host, () => {
     console.log(`Server is listenning at port ${port}`);
 })
+
+
+module.exports = app;
