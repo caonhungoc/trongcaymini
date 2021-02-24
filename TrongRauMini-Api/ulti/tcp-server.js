@@ -59,8 +59,6 @@ server.on('connection', socket => {
             
             if (socket.deviceId === sc.deviceId) {
                 console.log(`${socket.id}: ${data}`)
-                sc.write(`${socket.deviceId}: `);
-                sc.write(data);
             }
         })
     });
