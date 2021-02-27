@@ -23,11 +23,13 @@ unsigned char MODE = RUN_MODE, reset_time = 0;
 
 
 const uint16_t port = 6789;
-const char * host = "192.168.2.184";
+const char * host = "103.130.213.178";
 
 String tcp_data = "";
 String secret_key = "";
 
+int pin1 = 19;
+int pin2 = 18;
 
 //Function Decalration
 bool testWifi(void);
@@ -40,6 +42,8 @@ WebServer server(80);
 
 void setup()
 {
+  pinMode(pin1, OUTPUT);
+  pinMode(pin2, OUTPUT);
   // check switch here to set suitable mode
   ///////////////////////////////////////
   Serial.begin(115200); //Initialising if(DEBUG)Serial Monitor
@@ -112,6 +116,15 @@ void setup()
   delay(1000);
 }
 
+String getState() {
+  String state = "{1:";
+  state = state + digitalRead(pin1); // = {1:1
+  state = state + ", 2:";
+  state = state + digitalRead(pin2) + "}";
+  Serial.println(state);
+  return state;
+}
+
 void loop() {
   if(RUN_MODE == MODE) 
   {
@@ -119,20 +132,10 @@ void loop() {
     int reconnect_time = 0;
     if ((WiFi.status() == WL_CONNECTED))
     {
-//      if (!client.connect(host, port)) 
-//      {
-//        Serial.println("Connection to host failed");
-//        delay(1000);
-//        return;
-//      }
       if (client.connect(host, port)) 
       {
         Serial.println("Connected to server successful!");
-        String secret_key = eusername + ";";
-        secret_key = secret_key + euid;
-  
-        //secret_key.replace(0, "");
-        
+        String secret_key = eusername + ".pdnc";
         client.print(secret_key);
       }
       
@@ -145,6 +148,43 @@ void loop() {
           if(k == '}') 
           {
               Serial.println(tcp_data);
+              String pin = tcp_data.substring(8, 9);
+              String temp = tcp_data.substring(10, 11);
+              Serial.print(temp);
+              if(pin.toInt() == 1)
+              {
+                  if(temp.toInt() == 0) 
+                  {
+                    //Serial.print("pin1 off");
+                    digitalWrite(pin1, LOW);
+                  }
+                  else
+                  {
+                    //Serial.print("pin1 on");
+                    digitalWrite(pin1, HIGH);
+                  }
+                  String state = "1:";
+                  state = state + digitalRead(pin1);
+                  client.print(state);
+              }
+              else  if(pin.toInt() == 2)
+              {
+                  if(temp.toInt() == 0) 
+                  {
+                    //Serial.print("pin1 off");
+                    digitalWrite(pin2, LOW);
+                  }
+                  else
+                  {
+                    //Serial.print("pin1 on");
+                    digitalWrite(pin2, HIGH);
+                  }
+                  String state = "2:";
+                  state = state + digitalRead(pin2);
+                  client.print(state);
+              }
+              // test 
+              client.print(getState());
               tcp_data = "";
           }
         }
