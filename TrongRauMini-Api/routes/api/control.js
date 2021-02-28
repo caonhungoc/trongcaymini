@@ -11,6 +11,10 @@ controlRouter.post('/',
     Control.postControl
 )
 
+controlRouter.get('/get-state', passport.authenticate('jwt', {session: false}),
+    // temp + humid soil, 2 water level sensor, light sensor
+    Control.getState
+)
 
 controlRouter.get('/', passport.authenticate('jwt', {session: false}),
 async (req, res) => {

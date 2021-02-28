@@ -37,11 +37,45 @@ const postControl = async (req, res) => {
         await foundSocket.write(`control:${relay},${state}}`);
 
         // get result feedback from esp32
-
+        // while(!foundSocket.receivedData) {
+        //     setTimeout(() => {
+        //         if(false === foundSocket.receivedData) {
+        //             foundSocket.receivedData = true; // can't receive feedback from esp32
+        //             res.status(200).send({message: "OK " + foundSocket.espData});
+        //         }
+        //     }, 2000)
+        // }
 
         // send result for front-end
 
-        res.status(200).send({message: "OK"});
+        res.status(200).send({message: "OK "});
+    }
+    catch(e) {
+        console.log(e);
+        res.status(500).send({message: "error"});
+    }
+    
+}
+
+const getState = async (req, res) => {
+    let {cropId} = req.body;
+    try {
+        // check that is  this crop legal because it can be closed?
+        const foundCrop = await Crop.findById(cropId);
+
+        if(!foundCrop) return res.status(400).send({message: "Crop not exist!"});
+        if(foundCrop.endDate) return res.status(401).send({message: "Crop have been closed!"});
+
+        // find id of device have this crop
+        let foundSocket;
+        Object.entries(sockets).forEach(([key, sc]) => {
+            if (sc.deviceId === foundCrop.deviceId.toString()) {
+                foundSocket = sc;
+                // break;
+            }
+        })
+
+        res.status(200).send({message: foundSocket.espData});
     }
     catch(e) {
         console.log(e);
@@ -51,5 +85,6 @@ const postControl = async (req, res) => {
 }
 
 module.exports = {
-    postControl
+    postControl,
+    getState
 };

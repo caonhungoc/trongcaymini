@@ -62,7 +62,11 @@ server.on('connection', socket => {
         Object.entries(sockets).forEach(([key, sc]) => {
             
             if (socket.deviceId === sc.deviceId) {
-                console.log(`${socket.id}: ${data}`)
+                // console.log(`${socket.id}: ${data}`);
+                socket.espData = data;
+            }
+            else {
+
             }
         })
     });
