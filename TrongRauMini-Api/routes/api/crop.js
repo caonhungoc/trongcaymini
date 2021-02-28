@@ -18,4 +18,9 @@ cropRouter.post('/close-crop',
     Crop.postCloseCrop
 )
 
+cropRouter.post('/add-diary', 
+    passport.authenticate('jwt', {session: false}), 
+    Crop.postDiary
+)
+
 module.exports = cropRouter;

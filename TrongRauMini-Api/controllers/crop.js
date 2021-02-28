@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const Device = require('../models/device');
 const Crop = require('../models/crop');
+const Diary = require('../models/diary');
 
 const postCreateCrop = async (req, res) => {
     const {deviceId, userId, name, nameOfPlant} = req.body;
@@ -71,7 +72,37 @@ const postCloseCrop = async (req, res) => {
     }
 }
 
+const postDiary = async (req, res) => { // transaction, will be inplemented later
+    let {cropId, content} = req.body;
+    try {
+        // check that is  this crop legal because it can be closed?
+        const foundCrop = await Crop.findById(cropId);
+
+        if(!foundCrop) return res.status(400).send({message: "Crop not exist!"});
+        if(foundCrop.endDate) return res.status(401).send({message: "Crop have been closed!"});
+
+        // create diary
+        const newDiary = new Diary({
+            content: content,
+            cropId: cropId
+        })
+        await newDiary.save();
+
+        // add diary to crop
+        foundCrop.diary.push(newDiary._id);
+        await foundCrop.save();
+
+        res.status(200).send({message: foundCrop});
+    }
+    catch(e) {
+        console.log(e);
+        res.status(500).send({message: "error"});
+    }
+    
+}
+
 module.exports = {
     postCreateCrop,
-    postCloseCrop
+    postCloseCrop,
+    postDiary
 }

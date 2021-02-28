@@ -9,6 +9,7 @@ const Device = require('../models/device');
 const Crop = require('../models/crop');
 
 let {sockets} = require('../ulti/tcp-server'); // control by using this socket
+const Diary = require('../models/diary');
 
 const postControl = async (req, res) => {
     // 4 relays ===> Control (relay 1|2|3|4 with value  0|1)
@@ -36,16 +37,6 @@ const postControl = async (req, res) => {
         // send control signal to esp32
         await foundSocket.write(`control:${relay},${state}}`);
 
-        // get result feedback from esp32
-        // while(!foundSocket.receivedData) {
-        //     setTimeout(() => {
-        //         if(false === foundSocket.receivedData) {
-        //             foundSocket.receivedData = true; // can't receive feedback from esp32
-        //             res.status(200).send({message: "OK " + foundSocket.espData});
-        //         }
-        //     }, 2000)
-        // }
-
         // send result for front-end
 
         res.status(200).send({message: "OK "});
@@ -57,7 +48,7 @@ const postControl = async (req, res) => {
     
 }
 
-const getState = async (req, res) => {
+const getEspState = async (req, res) => {
     let {cropId} = req.body;
     try {
         // check that is  this crop legal because it can be closed?
@@ -84,7 +75,9 @@ const getState = async (req, res) => {
     
 }
 
+
+
 module.exports = {
     postControl,
-    getState
+    getEspState
 };

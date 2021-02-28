@@ -13,7 +13,7 @@ controlRouter.post('/',
 
 controlRouter.get('/get-state', passport.authenticate('jwt', {session: false}),
     // temp + humid soil, 2 water level sensor, light sensor
-    Control.getState
+    Control.getEspState
 )
 
 controlRouter.get('/', passport.authenticate('jwt', {session: false}),
