@@ -259,7 +259,7 @@ describe('Users', function () {
                     .get('/user/get-device')
                     .set('Authorization', token)
                     .end(function (err, res) {
-                        console.log(res.body);
+                        //console.log(res.body);
                         res.body.should.have.property('foundDevice');
                         res.should.have.status(200);
                         // console.log('tokennn: ' + token);
@@ -303,7 +303,7 @@ describe('Users', function () {
                     .get('/user/get-device')
                     .set('Authorization', token)
                     .end(function (err, res) {
-                        console.log(res.body);
+                        //console.log(res.body);
                         res.body.should.have.property('foundDevice');
                         res.should.have.status(200);
                         // console.log('tokennn: ' + token);
@@ -346,7 +346,7 @@ describe('Users', function () {
                     .get('/user/get-device')
                     .set('Authorization', token)
                     .end(function (err, res) {
-                        console.log(res.body);
+                        //console.log(res.body);
                         res.body.should.have.property('foundDevice');
                         res.should.have.status(200);
                         // console.log('tokennn: ' + token);
@@ -390,7 +390,7 @@ describe('Users', function () {
                     .get('/user/get-device')
                     .set('Authorization', token)
                     .end(function (err, res) {
-                        console.log(res.body);
+                        //console.log(res.body);
                         res.body.should.have.property('foundDevice');
                         res.should.have.status(200);
                         // console.log('tokennn: ' + token);
@@ -408,6 +408,60 @@ describe('Users', function () {
                                 // console.log(res.body);
                                 // res.body.should.have.property('result');
                                 res.should.have.status(402);
+                            });
+                    });
+                done();
+            });
+    });
+
+    it('Should create add diary successfully on /crop/add-diary POST', function (done) {
+        chai.request(server)
+            .post('/user/login')
+            .send({
+                'email': 'caonhungoc1996@gmail.com',
+                'password': 'Pass1234'
+            })
+            .end(function (err, res) {
+                // get token
+                res.should.have.status(200);
+                res.body.should.have.property('token');
+
+                let token = res.body.token;
+                // console.log(token)
+
+                chai.request(server)
+                    .get('/user/get-device')
+                    .set('Authorization', token)
+                    .end(function (err, res) {
+                        // console.log(res.body);
+                        res.body.should.have.property('foundDevice');
+                        res.should.have.status(200);
+                        // console.log('tokennn: ' + token);
+                        // Create new Crop
+                        // console.log("nnnnn " + res.body.foundDevice[0]._id);
+                        chai.request(server)
+                            .get('/user/get-open-crop')
+                            .set('Authorization', token)
+                            .send({
+                                deviceId: res.body.foundDevice[0]._id,
+                            })
+                            .end(function (err, res) {
+                                // console.log(res.body);
+                                // res.body.should.have.property('result');
+                                res.should.have.status(200);
+                                chai.request(server)
+                                    .post('/crop/add-diary')
+                                    .set('Authorization', token)
+                                    .send({
+                                        cropId: res.body.foundCrop[0]._id,
+                                        content: "testing content"
+                                    })
+                                    .end(function (err, res) {
+                                        // console.log(res.body);
+                                        res.body.should.have.property("message");
+                                        res.should.have.status(200);
+                                        res.body.message.content.should.equal("testing content");
+                                    });
                             });
                     });
                 done();

@@ -17,7 +17,7 @@ const postCreateCrop = async (req, res) => {
         
         // check that is this device used for another crop? 
         let foundDevice = await Device.findOne({ _id:  deviceId })
-        console.log('abc ' + foundDevice.inProgressOfCrop);
+        // console.log('abc ' + foundDevice.inProgressOfCrop);
         if(foundDevice.inProgressOfCrop) {
             return res.status(402).send({ message: "Can not create crop with this device!" });
         }
@@ -92,7 +92,7 @@ const postDiary = async (req, res) => { // transaction, will be inplemented late
         foundCrop.diary.push(newDiary._id);
         await foundCrop.save();
 
-        res.status(200).send({message: foundCrop});
+        res.status(200).send({message: newDiary});
     }
     catch(e) {
         console.log(e);
