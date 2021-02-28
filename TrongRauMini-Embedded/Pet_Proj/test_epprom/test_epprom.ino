@@ -116,10 +116,10 @@ void setup()
   delay(1000);
 }
 
-String getState() {
+String getState() { // more relay state and sensors here
   String state = "{1:";
   state = state + digitalRead(pin1); // = {1:1
-  state = state + ", 2:";
+  state = state + ", 2:"; 
   state = state + digitalRead(pin2) + "}";
   Serial.println(state);
   return state;
