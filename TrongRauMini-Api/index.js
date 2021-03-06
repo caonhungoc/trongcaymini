@@ -7,6 +7,7 @@ const deviceRoute = require('./routes/api/device');
 const controlRoute = require('./routes/api/control');
 const cropRoute = require('./routes/api/crop');
 const passport = require('passport');
+const cors =  require('cors');
 
 // Connect to db
 db.connect();
@@ -19,6 +20,11 @@ const port = process.env.PORT || config.get("server.port");
 //app.use(morgan("combined"));
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
+
+app.use( cors({
+    origin: "http://locallhost:8080",
+    optionsSuccessStatus: 200,
+  }) );
 
 app.use(passport.initialize());
 require('./config/passport')(passport);
