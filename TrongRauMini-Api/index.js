@@ -22,7 +22,7 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
 app.use( cors({
-    origin: "http://locallhost:8080",
+    origin: "http://localhost:8080",
     optionsSuccessStatus: 200,
   }) );
 

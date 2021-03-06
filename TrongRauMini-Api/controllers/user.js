@@ -51,6 +51,7 @@ const postCreateDevice = async (req, res) => {
 
 const postLogin = (req, res) => {
     const {email, password} = req.body;
+    console.log(req.body);
 
     if(!email || !password) return res.status(401).send({mes: "Something went wrong!"});
 
